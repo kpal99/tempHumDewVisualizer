@@ -163,3 +163,7 @@ untracked
 **/.archives_txt/
 20230202.txt
 cpIndoor_28-01-23.csv
+
+
+#remove all apple specific files
+._*
