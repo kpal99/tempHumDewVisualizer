@@ -18,7 +18,7 @@ Expected data format is listed in file `temp_humid_dew_test.txt`
 `tempHumidity.ipynb` plots the temperature, humidity recieved from other type of sensor  
 Expected data format is listed in file `23-02-08 15.08.46.xls`
 
-`particlePlot.ipynb` plots the particle count recieved ParticlePlus counter
+`particlePlot.ipynb` plots the particle count recieved from ParticlePlus counter  
 Expected data format is listed in file `particle-11-04.csv`
 
 ### Plots are interactive
