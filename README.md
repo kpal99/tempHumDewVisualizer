@@ -1,4 +1,4 @@
-# Temperature, Dewpoint, Humidity Data Visualizer
+# Temperature, Dewpoint, Humidity and Particle Count Data Visualizer
 
 Uses jupyter notebook, with python3
 
