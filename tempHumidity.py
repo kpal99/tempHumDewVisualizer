@@ -15,12 +15,12 @@ from bokeh.resources import CDN
 from bokeh.layouts import gridplot
 warnings.filterwarnings("ignore")
 
-def create_fig(df, date):
+def create_fig(df, title_str):
 # Create a plot with interactive tools
     fig = figure(x_axis_type='datetime',
                  width=900,
                  height=450,
-                 title="Temperature and Humidity " + date,
+                 title=title_str,
                  tools="wheel_zoom,box_zoom,reset,save,pan")
 
 # Customize the x-axis format
@@ -67,59 +67,6 @@ def create_fig(df, date):
 
     return fig
 
-
-def create_fig_avg(df1, date, time_avg):
-# Create a plot with interactive tools
-    fig1 = figure(x_axis_type='datetime',
-                 width=900,
-                 height=450,
-                 title="Temperature and Humidity " + date + " (" + time_avg + " min avg)",
-                 tools="wheel_zoom,box_zoom,reset,save,pan")
-
-# Customize the x-axis format
-    fig1.xaxis.formatter = DatetimeTickFormatter(
-        microseconds=["%fus"],
-        milliseconds=["%3Nms", "%S.%3Ns"],
-        seconds=["%d %b %H:%M:%S"],
-        minsec=["%d %b %H:%M:%S"],
-        minutes=["%d %b %H:%M"],
-        hourmin=["%d %b %H:%M"],
-        hours=["%d %b %H:%M"],
-        days=["%d %b"],
-        months=["%b %Y"],
-        years=["%Y"])
-#fig.xaxis.formatter.context = RELATIVE_DATETIME_CONTEXT()
-
-# Set the x and y axis label font style to normal
-    fig1.xaxis.axis_label_text_font_style = 'normal'
-    fig1.yaxis.axis_label_text_font_style = 'normal'
-# Set the x and y labels
-    fig1.xaxis.axis_label="Datetime"
-    fig1.yaxis.axis_label="Temperature (°C)"
-
-# Setting the second y axis range name and range
-    fig1.extra_y_ranges={"humid": Range1d(start=int(min(df1['Humidity'])/10)*10, end=int(max(df1['Humidity'])/10 + 1)*10)}
-    fig1.y_range=Range1d(start=int(min(df1['Temperature'])/10)*10, end=int(max(df1['Temperature'])/10 + 1)*10)
-
-# Adding the second axis to the plot
-    fig1.add_layout(LinearAxis(y_range_name="humid",
-                              axis_label="Humidity (%)",
-                              axis_label_text_color='red',
-                              axis_line_color='red',
-                              major_label_text_color='red',
-                              major_tick_line_color='red',
-                              minor_tick_line_color='red',
-                              axis_label_text_font_style='normal'), 'right')
-
-
-# Add a line glyph to the figure
-    fig1.line(x=df1.index, y=df1['Temperature'], line_width=1, line_color='black', legend_label="Temperature", muted_alpha=0.1)
-    fig1.line(x=df1.index, y=df1['Humidity'], y_range_name="humid", line_width=1, line_color='red', legend_label="Humidity", muted_alpha=0.1)
-    fig1.legend.orientation="horizontal"
-    fig1.legend.click_policy="mute"
-
-    return fig1
-
 def main():
     if len(sys.argv) == 2:
         filename = sys.argv[1]
@@ -156,8 +103,8 @@ def main():
         group1 = group.resample(f"{time_value}T").mean()
 
         date_value = str(date.date())
-        fig = create_fig(group, date_value)
-        fig1 = create_fig_avg(group1, date_value, str(time_value))
+        fig = create_fig(group, "Temperature and Humidity " + date_value)
+        fig1 = create_fig(group1, "Temperature and Humidity " + date_value + " (" + str(time_value) + " min avg)")
 
         grid = gridplot([[fig1], [fig]])
         with open(output_file, 'w') as f:
