@@ -167,3 +167,4 @@ cpIndoor_28-01-23.csv
 
 #remove all apple specific files
 ._*
+output_files/
