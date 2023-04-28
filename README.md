@@ -8,7 +8,9 @@ Use pip to install
 pip install numpy
 pip install pandas
 pip install bokeh
+pip install selenium
 ```
+solenium required by bokeh for export_png
 
 
 `tempHumidityDew.ipynb` plots the temperature, humidity and dew  
