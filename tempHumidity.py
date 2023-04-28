@@ -2,6 +2,7 @@
 # coding: utf-8
 import sys
 import datetime
+import os
 import numpy as np
 import pandas as pd
 import warnings
@@ -133,14 +134,22 @@ def main():
 
     # group the data by the date column
     grouped_data = df.groupby(pd.Grouper(freq='D', level=0))
-    for date, group in grouped_data:
-        # get the last timestamp from the index
-        last_timestamp = group.index[-1]
-        # extract the time component
-        last_time = last_timestamp.time()
-        # compare the time to 23:30:00
-        if last_time < datetime.time(hour=23, minute=00, second=0):
+    for i, (date, group) in enumerate(grouped_data):
+        output_file = 'output_files/tempHumid_' + str(date.date()) + '.html'
+
+        if os.path.exists(output_file):
             continue
+
+        #check timestamp for last group
+        if i == len(grouped_data) - 1:
+            # get the last timestamp from the index
+            last_timestamp = group.index[-1]
+            # extract the time component
+            last_time = last_timestamp.time()
+            # compare the time to 23:30:00
+            if last_time < datetime.time(hour=23, minute=00, second=0):
+                continue
+
 
         time_value = 10
         #resampling data to shallow the fluctuations
@@ -151,7 +160,7 @@ def main():
         fig1 = create_fig_avg(group1, date_value, str(time_value))
 
         grid = gridplot([[fig1], [fig]])
-        with open('output_files/tempHumid_' + date_value + '.html', 'w') as f:
+        with open(output_file, 'w') as f:
             f.write(file_html(grid, CDN, date_value))
 
 if __name__ == '__main__':
