@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
+import sys
+import datetime
 import numpy as np
 import pandas as pd
 import warnings
@@ -118,8 +120,10 @@ def create_fig_avg(df1, date):
     return fig1
 
 def main():
+    if len(sys.argv) == 2:
+        filename = sys.argv[1]
     #Kindly put exported filename here
-    filename = '23-02-08 15.08.46.xls'
+    print(filename)
 
     df = pd.read_csv(filename, skiprows=11, delimiter='\t', header=None, names=['NO', 'Temperature', 'Humidity', 'DateTime'])
     df = df.drop(columns=['NO'])
@@ -128,6 +132,26 @@ def main():
 
     df['Temperature'] = np.where(df['Temperature'] > 100, 100, df['Temperature'])
     df['Humidity'] = np.where(df['Humidity'] > 100, 100, df['Humidity'])
+
+    # group the data by the date column
+    grouped_data = df.groupby(pd.Grouper(freq='D', level=0))
+
+    for date, group in grouped_data:
+    # do something with the data for this day
+        print(f"Data for {date.date()}:")
+        print(group)
+
+        # get the last timestamp from the index
+        last_timestamp = group.index[-1]
+        # extract the time component
+        last_time = last_timestamp.time()
+        # compare the time to 23:30:00
+        if last_time > datetime.time(hour=23, minute=00, second=0):
+            print("Last entry is after 23:30:00")
+        else:
+            print("Last entry is before or at 23:30:00")
+
+    return
 
     time_value = 15
     #resampling data to shallow the fluctuations
