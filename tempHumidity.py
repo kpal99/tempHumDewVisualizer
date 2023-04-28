@@ -162,6 +162,7 @@ def main():
         grid = gridplot([[fig1], [fig]])
         with open(output_file, 'w') as f:
             f.write(file_html(grid, CDN, date_value))
+            print(f"File {output_file} created")
 
 if __name__ == '__main__':
     main()
