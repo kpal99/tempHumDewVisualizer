@@ -6,7 +6,7 @@ import os
 import numpy as np
 import pandas as pd
 import warnings
-from bokeh.io import show, output_notebook
+from bokeh.io import show, output_notebook, export_png
 from bokeh.plotting import figure
 #from bokeh.models import RELATIVE_DATETIME_CONTEXT
 from bokeh.models import DatetimeTickFormatter, Range1d, LinearAxis
@@ -108,7 +108,10 @@ def main():
     # group the data by the date column
     grouped_data = df.groupby(pd.Grouper(freq='D', level=0))
     for i, (date, group) in enumerate(grouped_data):
-        output_file = 'output_files/tempHumidityDew_' + str(date.date()) + '.html'
+        date_value = str(date.date())
+
+        output_file = 'output_files/tempHumidityDew_' + date_value + '.html'
+        output_file_png = 'output_files/tempHumidityDew_' + date_value + '.png'
 
         if os.path.exists(output_file):
             continue
@@ -123,19 +126,22 @@ def main():
             if last_time < datetime.time(hour=23, minute=00, second=0):
                 continue
 
-
         time_value = 10
         #resampling data to shallow the fluctuations
         group1 = group.resample(f"{time_value}T").mean()
 
-        date_value = str(date.date())
         fig = create_fig(group,"Temperature, Dewpoint and Humidity " + date_value)
         fig1 = create_fig(group1, "Temperature, Dewpoint and Humidity " + date_value + " (" + str(time_value) + " min avg)")
+
+        # save the plot as a PNG file
+        export_png(fig1, filename=output_file_png)
+        print(f"File {output_file_png} created")
 
         grid = gridplot([[fig1], [fig]])
         with open(output_file, 'w') as f:
             f.write(file_html(grid, CDN, date_value))
             print(f"File {output_file} created")
+            print()
 
 if __name__ == '__main__':
     main()
