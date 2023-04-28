@@ -19,7 +19,7 @@ def create_fig(df, date):
     fig = figure(x_axis_type='datetime',
                  width=900,
                  height=450,
-                 title="Temperature and Humidity",
+                 title="Temperature and Humidity " + date,
                  tools="wheel_zoom,box_zoom,reset,save,pan")
 
 # Customize the x-axis format
@@ -67,12 +67,12 @@ def create_fig(df, date):
     return fig
 
 
-def create_fig_avg(df1, date):
+def create_fig_avg(df1, date, time_avg):
 # Create a plot with interactive tools
     fig1 = figure(x_axis_type='datetime',
                  width=900,
                  height=450,
-                 title="Temperature and Humidity (10 min avg)",
+                 title="Temperature and Humidity " + date + " (" + time_avg + " min avg)",
                  tools="wheel_zoom,box_zoom,reset,save,pan")
 
 # Customize the x-axis format
@@ -122,8 +122,6 @@ def create_fig_avg(df1, date):
 def main():
     if len(sys.argv) == 2:
         filename = sys.argv[1]
-    #Kindly put exported filename here
-    print(filename)
 
     df = pd.read_csv(filename, skiprows=11, delimiter='\t', header=None, names=['NO', 'Temperature', 'Humidity', 'DateTime'])
     df = df.drop(columns=['NO'])
@@ -135,34 +133,26 @@ def main():
 
     # group the data by the date column
     grouped_data = df.groupby(pd.Grouper(freq='D', level=0))
-
     for date, group in grouped_data:
-    # do something with the data for this day
-        print(f"Data for {date.date()}:")
-        print(group)
-
         # get the last timestamp from the index
         last_timestamp = group.index[-1]
         # extract the time component
         last_time = last_timestamp.time()
         # compare the time to 23:30:00
-        if last_time > datetime.time(hour=23, minute=00, second=0):
-            print("Last entry is after 23:30:00")
-        else:
-            print("Last entry is before or at 23:30:00")
+        if last_time < datetime.time(hour=23, minute=00, second=0):
+            continue
 
-    return
+        time_value = 10
+        #resampling data to shallow the fluctuations
+        group1 = group.resample(f"{time_value}T").mean()
 
-    time_value = 15
-    #resampling data to shallow the fluctuations
-    df1 = df.resample(f"{time_value}T").mean()
+        date_value = str(date.date())
+        fig = create_fig(group, date_value)
+        fig1 = create_fig_avg(group1, date_value, str(time_value))
 
-    fig = create_fig(df, time_value)
-    fig1 = create_fig_avg(df1, time_value)
-
-    grid = gridplot([[fig1], [fig]])
-    with open('output_files/7-days.html', 'w') as f:
-        f.write(file_html(grid, CDN, "title"))
+        grid = gridplot([[fig1], [fig]])
+        with open('output_files/tempHumid_' + date_value + '.html', 'w') as f:
+            f.write(file_html(grid, CDN, date_value))
 
 if __name__ == '__main__':
     main()
