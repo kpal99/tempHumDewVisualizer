@@ -126,6 +126,10 @@ def main():
             if last_time < datetime.time(hour=23, minute=00, second=0):
                 continue
 
+        #save group to csv
+        group.to_csv('output_files/tempHumidityDew_' + date_value + '.csv', sep=';')
+        print(f"File output_files/tempHumidityDew_{date_value}.csv created")
+
         time_value = 10
         #resampling data to shallow the fluctuations
         group1 = group.resample(f"{time_value}T").mean()
