@@ -35,11 +35,7 @@ def makedf(filename, cols_num):
 # Read in the df from the file
     df = pd.read_csv(filename, sep=',', header=None, skiprows=5, usecols=cols_num)
 
-# Parse the dates and times into a single DateTime column
-    df[0] = pd.to_datetime(df[0] + ' ' + df[1], format='%m/%d/%Y %I:%M:%S %p')
-
-# Rename the columns and drop the original date and time columns
-    df = df.drop(columns=[1])
+# Rename the columns
     df.columns = ['DateTime', 'Flowrate', '0.3 µm', '0.5 µm', '5 µm']
 
 # # remove commas from the columns
@@ -49,20 +45,21 @@ def makedf(filename, cols_num):
 
 # Set the DateTime column as the index
     df = df.set_index('DateTime')
-#print(df)
+    #print(df)
     return df
-
-
 
 
 def makePlots(fileNameArray, date_value):
 #Kindly put count type here i.e. raw, ft3, m3
     count_type = 'm3'
 
-    cols_alphabet = ['A','B','E']
-    cols_alphabet += ['Q','T','AC']
+
+    cols_alphabet = ['B','C']
+    cols_alphabet += ['F','H','N']
 
     cols_num = [get_alphabet_index(x) for x in cols_alphabet]
+    dfSmall = makedf(fileNameArray[0], cols_num)
+    dfBig = makedf(fileNameArray[1], cols_num)
 
     from bokeh.io import show, output_notebook
     from bokeh.plotting import figure
@@ -135,7 +132,7 @@ def main():
     fileLists = getFileArray(sys.argv[1:])
     for key in fileLists.keys():
         if len(fileLists[key]) == 2:
-            print(fileLists[key], key)
+            makePlots(fileLists[key], key)
         else:
             print(f"{fileLists[key]} doesn't look okay, SKIPPING")
 
